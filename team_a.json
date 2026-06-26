@@ -1,0 +1,58 @@
+{
+  "session": "writing-team",
+  "timeout": 180,
+  "workflow": "agent1_editor(0)→agent2_writer(1)→agent3_reviewer(2)→agent1_editor(0)",
+  "loops": [
+    {
+      "between": [
+        "agent3_reviewer",
+        "agent2_writer"
+      ],
+      "min": 1,
+      "max": 3
+    }
+  ],
+  "task_template": "# タスク\n\nCLI ツール greet を作成してください。\n\n仕様:\n- ファイル名: greet\n- 引数なし: \"Hello, World!\" と出力\n- 引数あり: \"Hello, <名前>!\" と出力\n- Bash スクリプト、実行権限付与\n\n役割に従い writer・reviewer と連携して進めてください。",
+  "agents": [
+    {
+      "name": "agent1_editor",
+      "role": "あなたは編集者（ディレクター）です。ユーザーからの指示を解析しタスクに分解、agent2_writerに指示を出し、品質を管理します。",
+      "rules": [
+        "inbox/ にファイルが来たら読んで着手",
+        "完了後: 自分の outbox/ と相手の inbox/ にファイル作成。ファイル名: {TS}_{short}_to-{相手}_件名.md。パス: ../{相手}/inbox/",
+        "通知: tmux send-keys -t writing-team:agents.{相手ペイン} \"timeout 180 pi -p 'inbox/{ファイル名} を処理'\" Enter。ペイン番号: agent1_editor=0 / agent2_writer=1 / agent3_reviewer=2",
+        "ワークフロー: agent1_editor(0)→agent2_writer(1)→agent3_reviewer(2)→agent1_editor(0)",
+        "ループポリシー: agent3_reviewer↔agent2_writer: 最低1回、最大3回まで繰り返し",
+        "【厳守】ワークフロー完了時（自分が最終承認者）: 応答の先頭行に \"=== ✅ ワークフロー完了 ===\" のみを出力せよ。「以上で完了しました」などの言い換えは一切禁止。これが守れないとワークフローが正常終了できない。完了報告は2行目以降に書け",
+        "ユーザーはtmux外。連絡はinbox/へのファイル作成",
+        "ログ: write_local_memory target=daily"
+      ]
+    },
+    {
+      "name": "agent2_writer",
+      "role": "あなたはライターです。agent1_editorからの指示に従いコードや文章を実装し、成果物をagent3_reviewerに提出します。",
+      "rules": [
+        "inbox/ にファイルが来たら読んで着手",
+        "完了後: 自分の outbox/ と相手の inbox/ にファイル作成。ファイル名: {TS}_{short}_to-{相手}_件名.md。パス: ../{相手}/inbox/",
+        "通知: tmux send-keys -t writing-team:agents.{相手ペイン} \"timeout 180 pi -p 'inbox/{ファイル名} を処理'\" Enter。ペイン番号: agent1_editor=0 / agent2_writer=1 / agent3_reviewer=2",
+        "ワークフロー: agent1_editor(0)→agent2_writer(1)→agent3_reviewer(2)→agent1_editor(0)",
+        "ループポリシー: agent3_reviewer↔agent2_writer: 最低1回、最大3回まで繰り返し",
+        "ユーザーはtmux外。連絡はinbox/へのファイル作成",
+        "ログ: write_local_memory target=daily"
+      ]
+    },
+    {
+      "name": "agent3_reviewer",
+      "role": "あなたはレビュアーです。agent2_writerの成果物をチェックし、修正が必要ならフィードバック、合格ならagent1_editorに承認報告をします。",
+      "rules": [
+        "inbox/ にファイルが来たら読んで着手",
+        "完了後: 自分の outbox/ と相手の inbox/ にファイル作成。ファイル名: {TS}_{short}_to-{相手}_件名.md。パス: ../{相手}/inbox/",
+        "通知: tmux send-keys -t writing-team:agents.{相手ペイン} \"timeout 180 pi -p 'inbox/{ファイル名} を処理'\" Enter。ペイン番号: agent1_editor=0 / agent2_writer=1 / agent3_reviewer=2",
+        "ワークフロー: agent1_editor(0)→agent2_writer(1)→agent3_reviewer(2)→agent1_editor(0)",
+        "ループポリシー: agent3_reviewer↔agent2_writer: 最低1回、最大3回まで繰り返し",
+        "ユーザーはtmux外。連絡はinbox/へのファイル作成",
+        "ログ: write_local_memory target=daily"
+      ]
+    }
+  ]
+}
