@@ -34,7 +34,7 @@ bash pi-team-minimal.sh <チーム名> "タスク内容"
 例:
 
 ```bash
-bash pi-team-minimal.sh test "日本の首都と標高を教えてください"
+bash pi-team-minimal.sh test "2025年の日本の半導体補助金の総額と主な使途を教えてください"
 ```
 
 これで tmux 3ペインが起動し、manager → writer → reviewer の連鎖が自動実行されます。
